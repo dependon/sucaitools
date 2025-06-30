@@ -1,5 +1,6 @@
 import os
 from PIL import Image
+import os
 
 # 修改 process_image 函数以接受不同参数
 def process_image(image_path, mode, **kwargs):
@@ -31,8 +32,31 @@ def process_image(image_path, mode, **kwargs):
             # 保持图片模式（针对有透明通道的PNG等格式）
             resized_img = img.resize(new_size, Image.LANCZOS)
 
-            # 覆盖保存原图（保持原始格式）
-            resized_img.save(image_path, quality=95)
+            # 获取原始文件的扩展名
+            file_extension = os.path.splitext(image_path)[1].lower()
+
+            # 根据扩展名决定保存格式
+            save_format = None
+            if file_extension in ('.jpg', '.jpeg'):
+                save_format = 'jpeg'
+                # 如果是RGBA模式，转换为RGB，因为JPEG不支持透明度
+                if resized_img.mode == 'RGBA':
+                    resized_img = resized_img.convert('RGB')
+            elif file_extension == '.png':
+                save_format = 'png'
+            elif file_extension == '.bmp':
+                save_format = 'bmp'
+            elif file_extension == '.gif':
+                save_format = 'gif'
+
+            if save_format:
+                # 覆盖保存原图
+                if save_format == 'jpeg':
+                    resized_img.save(image_path, format=save_format, quality=95)
+                else:
+                    resized_img.save(image_path, format=save_format)
+            else:
+                print(f"不支持的保存格式: {file_extension} for {image_path}")
             print(f"已处理 ({mode}): {image_path}")
 
     except Exception as e:
