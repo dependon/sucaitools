@@ -12,6 +12,18 @@ def process_image(image_path, mode, **kwargs):
                 width = int(kwargs.get('width'))
                 height = int(kwargs.get('height'))
                 new_size = (width, height)
+            elif mode == "fixed_width":
+                # 固定宽度，按比例调整高度
+                width = int(kwargs.get('width'))
+                ratio = width / img.width
+                height = int(img.height * ratio)
+                new_size = (width, height)
+            elif mode == "fixed_height":
+                # 固定高度，按比例调整宽度
+                height = int(kwargs.get('height'))
+                ratio = height / img.height
+                width = int(img.width * ratio)
+                new_size = (width, height)
             else:
                 print(f"未知的处理模式: {mode} for {image_path}")
                 return # 如果模式未知，则不处理

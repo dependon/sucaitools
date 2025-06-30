@@ -57,6 +57,12 @@ class ImageResizerFrame(ctk.CTkFrame): # Inherit from CTkFrame
 
         self.fixed_radio = ctk.CTkRadioButton(self.mode_frame, text=self.lang_manager.get_text('fixed_mode'), variable=self.resize_mode, value="fixed", command=self.toggle_inputs)
         self.fixed_radio.grid(row=1, column=0, padx=5, pady=2, sticky='w')
+        
+        self.fixed_width_radio = ctk.CTkRadioButton(self.mode_frame, text=self.lang_manager.get_text('fixed_width_mode'), variable=self.resize_mode, value="fixed_width", command=self.toggle_inputs)
+        self.fixed_width_radio.grid(row=2, column=0, padx=5, pady=2, sticky='w')
+        
+        self.fixed_height_radio = ctk.CTkRadioButton(self.mode_frame, text=self.lang_manager.get_text('fixed_height_mode'), variable=self.resize_mode, value="fixed_height", command=self.toggle_inputs)
+        self.fixed_height_radio.grid(row=3, column=0, padx=5, pady=2, sticky='w')
         # --- 模式选择结束 ---
 
         # --- Scale Input --- 
@@ -81,6 +87,24 @@ class ImageResizerFrame(ctk.CTkFrame): # Inherit from CTkFrame
         self.height_entry = ctk.CTkEntry(self.fixed_input_frame, width=60) # Adjusted width
         self.height_entry.pack(side=tk.LEFT, padx=5)
         # --- 固定分辨率结束 ---
+        
+        # --- Fixed Width Input --- 
+        self.fixed_width_input_frame = ctk.CTkFrame(self.mode_frame)
+        self.fixed_width_input_frame.grid(row=2, column=1, padx=5, pady=2, sticky='w')
+        self.fixed_width_label = ctk.CTkLabel(self.fixed_width_input_frame, text=self.lang_manager.get_text('width_label'))
+        self.fixed_width_label.pack(side=tk.LEFT)
+        self.fixed_width_entry = ctk.CTkEntry(self.fixed_width_input_frame, width=60) # Adjusted width
+        self.fixed_width_entry.pack(side=tk.LEFT, padx=5)
+        # --- 固定宽度结束 ---
+        
+        # --- Fixed Height Input --- 
+        self.fixed_height_input_frame = ctk.CTkFrame(self.mode_frame)
+        self.fixed_height_input_frame.grid(row=3, column=1, padx=5, pady=2, sticky='w')
+        self.fixed_height_label = ctk.CTkLabel(self.fixed_height_input_frame, text=self.lang_manager.get_text('height_label'))
+        self.fixed_height_label.pack(side=tk.LEFT)
+        self.fixed_height_entry = ctk.CTkEntry(self.fixed_height_input_frame, width=60) # Adjusted width
+        self.fixed_height_entry.pack(side=tk.LEFT, padx=5)
+        # --- 固定高度结束 ---
 
         # --- Process Button --- 
         self.process_btn = ctk.CTkButton(self, text=self.lang_manager.get_text('start_resize'), command=self.start_processing, state=tk.DISABLED)
@@ -120,18 +144,23 @@ class ImageResizerFrame(ctk.CTkFrame): # Inherit from CTkFrame
     def toggle_inputs(self, *args):
         """Enable/disable inputs based on selected mode."""
         mode = self.resize_mode.get()
+        # 禁用所有输入框
+        self.scale_entry.configure(state=tk.DISABLED)
+        self.width_entry.configure(state=tk.DISABLED)
+        self.height_entry.configure(state=tk.DISABLED)
+        self.fixed_width_entry.configure(state=tk.DISABLED)
+        self.fixed_height_entry.configure(state=tk.DISABLED)
+        
+        # 根据选择的模式启用相应的输入框
         if mode == "scale":
             self.scale_entry.configure(state=tk.NORMAL)
-            self.width_entry.configure(state=tk.DISABLED)
-            self.height_entry.configure(state=tk.DISABLED)
         elif mode == "fixed":
-            self.scale_entry.configure(state=tk.DISABLED)
             self.width_entry.configure(state=tk.NORMAL)
             self.height_entry.configure(state=tk.NORMAL)
-        else:
-            self.scale_entry.configure(state=tk.DISABLED)
-            self.width_entry.configure(state=tk.DISABLED)
-            self.height_entry.configure(state=tk.DISABLED)
+        elif mode == "fixed_width":
+            self.fixed_width_entry.configure(state=tk.NORMAL)
+        elif mode == "fixed_height":
+            self.fixed_height_entry.configure(state=tk.NORMAL)
 
     def select_directory(self):
         folder = filedialog.askdirectory()
@@ -153,9 +182,13 @@ class ImageResizerFrame(ctk.CTkFrame): # Inherit from CTkFrame
         self.process_btn.configure(state=tk.DISABLED)
         self.scale_radio.configure(state=tk.DISABLED)
         self.fixed_radio.configure(state=tk.DISABLED)
+        self.fixed_width_radio.configure(state=tk.DISABLED)
+        self.fixed_height_radio.configure(state=tk.DISABLED)
         self.scale_entry.configure(state=tk.DISABLED)
         self.width_entry.configure(state=tk.DISABLED)
         self.height_entry.configure(state=tk.DISABLED)
+        self.fixed_width_entry.configure(state=tk.DISABLED)
+        self.fixed_height_entry.configure(state=tk.DISABLED)
         self.progress.grid(row=4, column=0, padx=10, pady=10, sticky="ew") # Use grid
         self.progress.start()
         self.status_label.configure(text=self.lang_manager.get_text('status_processing'), text_color='blue')
@@ -178,6 +211,16 @@ class ImageResizerFrame(ctk.CTkFrame): # Inherit from CTkFrame
                 if width <= 0 or height <= 0:
                     raise ValueError("宽度和高度必须是正整数")
                 params['width'] = width
+                params['height'] = height
+            elif mode == "fixed_width":
+                width = int(self.fixed_width_entry.get())
+                if width <= 0:
+                    raise ValueError("宽度必须是正整数")
+                params['width'] = width
+            elif mode == "fixed_height":
+                height = int(self.fixed_height_entry.get())
+                if height <= 0:
+                    raise ValueError("高度必须是正整数")
                 params['height'] = height
             
             # Call the updated process_directory
@@ -207,6 +250,8 @@ class ImageResizerFrame(ctk.CTkFrame): # Inherit from CTkFrame
         self.process_btn.configure(state=tk.NORMAL)
         self.scale_radio.configure(state=tk.NORMAL)
         self.fixed_radio.configure(state=tk.NORMAL)
+        self.fixed_width_radio.configure(state=tk.NORMAL)
+        self.fixed_height_radio.configure(state=tk.NORMAL)
         self.toggle_inputs() # Restore input states based on mode
 
     def update_ui_texts(self):
@@ -216,9 +261,13 @@ class ImageResizerFrame(ctk.CTkFrame): # Inherit from CTkFrame
         # Update mode frame text if it were a CTkLabelFrame, but it's a CTkFrame
         self.scale_radio.configure(text=self.lang_manager.get_text('scale_mode'))
         self.fixed_radio.configure(text=self.lang_manager.get_text('fixed_mode'))
+        self.fixed_width_radio.configure(text=self.lang_manager.get_text('fixed_width_mode'))
+        self.fixed_height_radio.configure(text=self.lang_manager.get_text('fixed_height_mode'))
         self.scale_label.configure(text=self.lang_manager.get_text('scale_label'))
         self.width_label.configure(text=self.lang_manager.get_text('width_label'))
         self.height_label.configure(text=self.lang_manager.get_text('height_label'))
+        self.fixed_width_label.configure(text=self.lang_manager.get_text('width_label'))
+        self.fixed_height_label.configure(text=self.lang_manager.get_text('height_label'))
         self.process_btn.configure(text=self.lang_manager.get_text('start_process'))
         # Update status label based on current state (this might need more logic)
         # For now, just reset to initial if not processing

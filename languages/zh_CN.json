@@ -22,6 +22,8 @@
   "scale_mode": "缩放模式:",
   "scale_label": "缩放比例:",
   "fixed_mode": "固定尺寸",
+  "fixed_width_mode": "按比例固定宽度",
+  "fixed_height_mode": "按比例固定高度",
   "width_label": "宽度:",
   "height_label": "高度:",
   "skip_root": "跳过根目录: {folder_path}",
