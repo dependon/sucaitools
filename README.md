@@ -2,6 +2,9 @@
 
 [English](#english) | [中文](#chinese)
 
+## bilibili 
+[使用方法地址](https://www.bilibili.com/video/BV1ojJGzZEve)
+
 <a name="english"></a>
 ## English
 
